@@ -30,9 +30,9 @@ $ . venv/bin/activate
 - Search the Maven Central Repository for packages with groupId `org.keycloak` and version `8.0.2`,
   add generate pom.xml:
 ```
-$ python src/pomgenerate.py -g org.keycloak -v 8.0.2 > pom.xml
+(venv) $ python src/pomgenerate.py -g org.keycloak -v 8.0.2 > pom.xml
 ```
-The output `pom.xml` looks likes this:
+The output `pom.xml` should look likes this:
 ```
 <project xmlns="http://maven.apache.org/POM/4.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
