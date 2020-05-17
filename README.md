@@ -1,14 +1,10 @@
 # Dependency POM Generator
 
-The python script generates `pom.xml` that is used as input to the the maven dependency plugin
-to download project dependencies to a local repository for off-line development (disconnected from the Internet),
-in air-gapped development environments.
+The tool searches the Central Maven Repository for packages matching specified groupId and version, 
+and generates  `pom.xml` that can used to download the packages for off-line development. 
 
-Project Object Model (POM) generator searches the Central Maven Repository for the packages
-with the groupId and version matching the values specified as input, and generates
-a `pom.xml` that lists the matching packages in the `<dependencies>` section.
 ```
-Usage: pomgenerate.py [-h] -g GROUP -v VERSION --basedir BASEDIR
+Usage: pomgenerate.py [-h] -g GROUP -v VERSION
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -31,12 +27,64 @@ $ python3 -m venv venv
 $ . venv/bin/activate
 (venv) $ pip install -r requirements.txt
 ```
-- Scan the Maven Central Repository for packages with groupId `org.keycloak` and version `8.0.2`,
+- Search the Maven Central Repository for packages with groupId `org.keycloak` and version `8.0.2`,
   add generate pom.xml:
 ```
 $ python src/pomgenerate.py -g org.keycloak -v 8.0.2 > pom.xml
 ```
+The output `pom.xml` looks likes this:
+```
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<modelVersion>4.0.0</modelVersion>
+
+<groupId>org.company</groupId>
+<artifactId>pom-generate</artifactId>
+<version>1.0</version>
+<packaging>pom</packaging>
+
+<name>Maven Quick Start Archetype</name>
+<url>http://maven.apache.org</url>
+
+<dependencies>  
+  <dependency><groupId>org.keycloak</groupId><artifactId>keycloak-client-cli-parent</artifactId><version>8.0.2</version><type>pom</type></dependency>
+  <dependency><groupId>org.keycloak</groupId><artifactId>keycloak-server-spi</artifactId><version>8.0.2</version><type>jar</type></dependency>
+  <dependency><groupId>org.keycloak</groupId><artifactId>keycloak-wildfly-subsystem</artifactId><version>8.0.2</version><type>jar</type></dependency>
+  <dependency><groupId>org.keycloak</groupId><artifactId>keycloak-services</artifactId><version>8.0.2</version><type>jar</type></dependency>
+  ...
+</dependencies>
+<build><plugins>
+  <plugin>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>maven-bundle-plugin</artifactId>
+      <version>2.4.0</version>
+      <extensions>true</extensions>
+  </plugin>
+</plugins></build>
+</project>
+
+```
+
 - Download the dependency tree for offline development to a local repository using Maven dependency plugin:
 ```
 (venv) $ mvn dependency:go-offline -Dmaven.repo.local=temp -U
+```
+The dependencies are copied  to `./temp` directory; the directory tree should look like this:
+```
+/antlr
+/asm
+/biz
+...
+/org
+    /keycloak
+        /bom
+        /keycloak-core
+            /8.0.2
+                keycloak-core-8.0.2.jar
+                keycloak-core-8.0.2.jar.sha1
+                keycloak-core-8.0.2.pom
+                ...
 ```

@@ -9,7 +9,7 @@ def main(params):
 
     packages = svc.search(params.group, params.version)
 
-    pom = MavenPom('org.company', 'pom-generate')
+    pom = MavenPom('com.singularix', 'pom-generate')
     print(pom.build(packages))
 
 if __name__ == "__main__":
