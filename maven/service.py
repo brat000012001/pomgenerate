@@ -19,9 +19,10 @@ from .response import SearchResult
 
 class RepositoryService(object):
 
-    def __init__(self, solrsearch_url):
+    def __init__(self, solrsearch_url, ssl_verify=False):
         self.solrsearch_url_ = solrsearch_url
         self.rows_per_page_ = 20
+        self.ssl_verify_ = ssl_verify
 
     def interpolate_path_(self, group_id, version_id, start, rows):
         return '%s?q=g:%s AND v:%s&start=%s&rows=%s' % (self.solrsearch_url_, group_id, version_id, start, rows)
@@ -31,7 +32,7 @@ class RepositoryService(object):
         # the first request is to get a total number of expected rows
         url = self.interpolate_path_(group_id, version_id, 0, 0)
 
-        response = requests.get(url)
+        response = requests.get(url, verify=self.ssl_verify_)
         if response.status_code != 200:
             raise Exception(repr(response))
 
@@ -45,7 +46,7 @@ class RepositoryService(object):
         for page_index in range(total_pages):
 
             url = self.interpolate_path_(group_id, version_id, page_index * self.rows_per_page_, self.rows_per_page_)
-            response = requests.get(url)
+            response = requests.get(url, verify=self.ssl_verify_)
             if response.status_code != 200:
                 raise Exception(repr(response))
             for doc in SearchResult(response.json()).get_response().get_docs():
@@ -53,7 +54,7 @@ class RepositoryService(object):
 
         if rem != 0:
             url = self.interpolate_path_(group_id, version_id, total_pages * self.rows_per_page_, rem)
-            response = requests.get(url)
+            response = requests.get(url, verify=self.ssl_verify_)
             if response.status_code != 200:
                 raise Exception(repr(response))
             for doc in SearchResult(response.json()).get_response().get_docs():

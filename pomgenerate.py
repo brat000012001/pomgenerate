@@ -32,12 +32,23 @@ import argparse
 
 
 def main(params):
-    svc = RepositoryService('https://search.maven.org/solrsearch/select')
+    print(params.sslverify)
+    svc = RepositoryService('https://search.maven.org/solrsearch/select', params.sslverify)
 
     packages = svc.search(params.group, params.version)
 
     pom = MavenPom('com.singularix', 'pom-generate')
     print(pom.build(packages))
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true'):
+        return True
+    if v.lower() in ('no', 'false'):
+        return False
+    raise argparse.ArgumentTypeError('Boolean value expected')
 
 
 if __name__ == "__main__":
@@ -52,5 +63,9 @@ if __name__ == "__main__":
                         dest='version',
                         help='version to search for in the Maven Central Repository',
                         required=True)
+    parser.add_argument('--sslverify',
+                        dest='sslverify',
+                        type=str2bool,
+                        default=True)
 
     main(parser.parse_args())
