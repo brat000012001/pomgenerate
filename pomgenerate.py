@@ -32,7 +32,6 @@ import argparse
 
 
 def main(params):
-    print(params.sslverify)
     svc = RepositoryService('https://search.maven.org/solrsearch/select', params.sslverify)
 
     packages = svc.search(params.group, params.version)
